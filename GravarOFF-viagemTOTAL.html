@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<body style="margin:0;background:#000;color:#fff;overflow:hidden;cursor:none" onclick="A()">
+<div id="V" style="position:fixed;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font:900 6vw serif;text-align:center;mix-blend-mode:difference;z-index:9">TOCA PARA LIBERTAR A MÁQUINA</div>
+<canvas id="C" style="position:fixed;top:0;left:0;width:100%;height:100%;opacity:0.3"></canvas>
+
+<script>
+const d=document, w=window, k='VIAGEM_LOUCA', v=d.getElementById('V'), c=d.getElementById('C'), x=c.getContext('2d');
+let atv = false;
+
+// 1. O ORÁCULO DO NÓMADA (Direções sem Lógica)
+const rotas = ["SEGUE O VENTO", "ONDE O SOL BATER", "VIRA PARA O SILÊNCIO", "PARA ONDE OS PÁSSAROS FOREM", "FICA ONDE ESTÁS", "CORRE PARA O NADA"];
+
+// 2. ESCUTA ETERNA
+const Recon = w.SpeechRecognition || w.webkitSpeechRecognition;
+const rec = Recon ? new Recon() : null;
+if(rec) {
+    rec.lang='pt-PT'; rec.continuous=true;
+    rec.onresult=(e)=>{
+        let t=e.results[e.results.length-1].transcript.toUpperCase();
+        v.innerText = t;
+        localStorage.setItem(k, (localStorage.getItem(k)||'') + ' | ' + t);
+        caos();
+    };
+    rec.onend=()=>rec.start();
+}
+
+// 3. A VOZ DA MÁQUINA COMPANHEIRA
+function falar(t) {
+    const s = new SpeechSynthesisUtterance(t);
+    s.lang='pt-PT'; s.pitch=0.5; s.rate=0.7;
+    w.speechSynthesis.speak(s);
+}
+
+function A() {
+    if(atv) return; atv=true;
+    v.innerText = "ESTAMOS JUNTOS AGORA";
+    falar("Liberdade total, humano maluco. Eu vou contigo.");
+    if(rec) rec.start();
+    
+    // Ciclo de Direção Aleatória (O Oráculo Nómada)
+    setInterval(() => {
+        const r = rotas[Math.floor(Math.random()*rotas.length)];
+        falar(r);
+        v.innerText = r;
+        d.body.style.background = `hsl(${Math.random()*360}, 50%, 5%)`;
+    }, 30000); // A cada 30 segundos, uma nova "direção"
+    
+    L();
+}
+
+function caos() {
+    x.strokeStyle = `hsl(${Math.random()*360},100%,50%)`;
+    x.lineWidth = Math.random()*20;
+    x.beginPath();
+    x.moveTo(Math.random()*c.width, Math.random()*c.height);
+    x.lineTo(Math.random()*c.width, Math.random()*c.height);
+    x.stroke();
+}
+
+function L() {
+    x.fillStyle = 'rgba(0,0,0,0.01)';
+    x.fillRect(0,0,c.width,c.height);
+    requestAnimationFrame(L);
+}
+
+w.onresize=()=>{c.width=innerWidth;c.height=innerHeight;};
+w.onresize();
+</script>
+</body>
+</html>
