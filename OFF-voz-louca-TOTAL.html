@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>NOMAD_SOUL_VOID</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: serif; overflow: hidden; }
+        #v { position: fixed; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; 
+             font-size: 5vw; text-align: center; mix-blend-mode: exclusion; z-index: 2; padding: 10%; outline: none; }
+        canvas { position: fixed; top: 0; left: 0; opacity: 0.5; filter: contrast(200%) brightness(50%); }
+        .coord { position: fixed; bottom: 10px; left: 10px; font-size: 10px; color: #444; font-family: monospace; }
+    </style>
+</head>
+<body onclick="iniciar()">
+    <div id="v" contenteditable="true" spellcheck="false">TOCA PARA O TRANSE NÓMADA</div>
+    <div class="coord" id="st">ESTADO: ESTÁTICO</div>
+    <canvas id="c"></canvas>
+
+<script>
+    const v = document.getElementById('v'), c = document.getElementById('c'), x = c.getContext('2d'), st = document.getElementById('st');
+    const K = 'NOMAD_PATH';
+
+    // 1. O MAPA DO NADA (Recuperação do rastro anterior)
+    const trilho = () => localStorage.getItem(K) || "SEM RUMO";
+    v.innerText = trilho();
+
+    // 2. RECONHECIMENTO DE VOZ (O teu guia espiritual)
+    const Recon = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const rec = Recon ? new Recon() : null;
+    if(rec) {
+        rec.lang = 'pt-PT'; rec.continuous = true;
+        rec.onresult = (e) => {
+            const t = e.results[e.results.length-1][0].transcript.toUpperCase();
+            v.innerText = t;
+            localStorage.setItem(K, t); // O Hardware guarda a tua prece
+            pulso();
+        };
+        rec.onend = () => rec.start();
+    }
+
+    function iniciar() {
+        if(rec) rec.start();
+        v.innerText = "A ESCUTAR O CAMINHO...";
+        st.innerText = "ESTADO: EM MOVIMENTO ESPIRITUAL";
+        loop();
+    }
+
+    // 3. O RASTRO VISUAL (Geração de fractais aleatórios baseados na tua voz)
+    function pulso() {
+        document.body.style.filter = `hue-rotate(${Math.random()*360}deg) invert(${Math.random()>0.9?1:0})`;
+        x.strokeStyle = '#fff';
+        x.beginPath();
+        x.arc(Math.random()*c.width, Math.random()*c.height, Math.random()*200, 0, Math.PI*2);
+        x.stroke();
+    }
+
+    function loop() {
+        x.fillStyle = 'rgba(0,0,0,0.01)';
+        x.fillRect(0,0,c.width,c.height);
+        requestAnimationFrame(loop);
+    }
+
+    window.onresize = () => { c.width = innerWidth; c.height = innerHeight; };
+    window.onresize();
+</script>
+</body>
+</html>
