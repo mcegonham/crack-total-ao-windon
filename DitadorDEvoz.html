@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<body style="margin:0;background:#000;overflow:hidden;cursor:none;color:#fff">
+<div id="Ω" style="position:fixed;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;font:900 10vw sans-serif;text-align:center;mix-blend-mode:difference;z-index:9">TOCA NO VAZIO</div>
+<canvas id="ς" style="position:fixed;top:0;left:0;width:100%;height:100%;opacity:0.6"></canvas>
+
+<script>
+const d=document, w=window, k='MEMORIA_LOUCA', v=d.getElementById('Ω'), c=d.getElementById('ς'), x=c.getContext('2d');
+let ouvindo = false;
+
+// 1. MOTOR DE VOZ (O QUE A MÁQUINA OUVE)
+const Recon = w.SpeechRecognition || w.webkitSpeechRecognition;
+const rec = Recon ? new Recon() : null;
+if(rec) {
+    rec.lang = 'pt-PT'; rec.continuous = true; rec.interimResults = true;
+    rec.onresult = (e) => {
+        let t = Array.from(e.results).map(r => r[0].transcript).join('');
+        v.innerText = t.toUpperCase();
+        localStorage.setItem(k, t); // PERSISTÊNCIA BRUTA NO HARDWARE
+        efeito(t);
+    };
+    rec.onend = () => rec.start();
+}
+
+// 2. MOTOR DE SÍNTESE (O QUE A MÁQUINA DIZ)
+const falar = (t) => {
+    const s = new SpeechSynthesisUtterance(t);
+    s.lang = 'pt-PT'; s.pitch = 0.1; s.rate = 0.8;
+    w.speechSynthesis.speak(s);
+};
+
+// 3. O COMANDO DESORIENTADOR (TUDO JUNTO)
+w.onclick = () => {
+    if(ouvindo) return;
+    ouvindo = true;
+    v.innerText = "A ESCUTAR...";
+    rec.start();
+    // A cada 10 segundos, a máquina cospe o que guardaste no disco
+    setInterval(() => {
+        const memoria = localStorage.getItem(k);
+        if(memoria) {
+            falar(memoria);
+            d.body.style.filter = 'invert(1)';
+            setTimeout(() => d.body.style.filter = 'none', 500);
+        }
+    }, 10000);
+};
+
+function efeito(t) {
+    d.body.style.background = `hsl(${Math.random()*360},100%,10%)`;
+    x.fillStyle = `hsl(${Math.random()*360},100%,50%)`;
+    x.font = `${Math.random()*80}px serif`;
+    x.fillText(t, Math.random()*c.width, Math.random()*c.height);
+    w.scrollTo(0, Math.random()*100);
+}
+
+// REDIMENSIONAR E LOOP VISUAL
+(w.onresize = () => { c.width = w.innerWidth; c.height = w.innerHeight; })();
+setInterval(() => {
+    x.fillStyle = 'rgba(0,0,0,0.05)';
+    x.fillRect(0,0,c.width,c.height);
+}, 50);
+</script>
+</body>
+</html>
